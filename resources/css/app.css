@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/* 
+  1. Define CSS Variables for all Colors.
+     This allows us to swap them out based on the .dark class.
+*/
+:root {
+  --font-family-sans: Figtree, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* LIGHT MODE VALUES */
+  --bg: oklch(100% 0 0);
+  --fg: oklch(5% 0.01 240);
+
+  --card: oklch(100% 0 0);
+  --card-fg: oklch(5% 0.01 240);
+
+  --popover: oklch(100% 0 0);
+  --popover-fg: oklch(5% 0.01 240);
+
+  /* Primary: Electric Blue */
+  --primary: oklch(55% 0.22 260);
+  --primary-fg: oklch(100% 0 0);
+
+  --secondary: oklch(96.1% 0.01 240);
+  --secondary-fg: oklch(5% 0.01 240);
+
+  --muted: oklch(96.1% 0.01 240);
+  --muted-fg: oklch(45% 0.01 240);
+
+  --accent: oklch(96.1% 0.01 240);
+  --accent-fg: oklch(5% 0.01 240);
+
+  --destructive: oklch(60.2% 0.177 29);
+  --destructive-fg: oklch(98% 0 0);
+
+  --border: oklch(92% 0.01 240);
+  --input: oklch(92% 0.01 240);
+  --ring: oklch(55% 0.22 260 / 0.5);
+
+  --radius: 0.5rem;
+
+  /* Charts - Light */
+  --chart-1: oklch(61% 0.153 29);
+  --chart-2: oklch(39% 0.099 192);
+  --chart-3: oklch(24% 0.065 197);
+  --chart-4: oklch(66% 0.149 95);
+  --chart-5: oklch(67% 0.182 35);
+}
+
+.dark {
+  /* DARK MODE OVERRIDES - Midnight Soft */
+  --bg: oklch(10% 0.02 240);
+  /* Darker background for contrast */
+  --fg: oklch(98% 0 0);
+
+  --card: oklch(18% 0.03 240);
+  /* Slightly lighter than bg */
+  --card-fg: oklch(98% 0 0);
+
+  --popover: oklch(18% 0.03 240);
+  --popover-fg: oklch(98% 0 0);
+
+  /* Primary: Electric Blue */
+  --primary: oklch(55% 0.22 260);
+  --primary-fg: oklch(100% 0 0);
+
+  /* Secondary: Significantly lighter for badges */
+  --secondary: oklch(30% 0.04 240);
+  --secondary-fg: oklch(98% 0 0);
+
+  --muted: oklch(25% 0.03 240);
+  --muted-fg: oklch(75% 0.02 240);
+  /* Brighter muted text */
+
+  --accent: oklch(25% 0.03 240);
+  --accent-fg: oklch(98% 0 0);
+
+  --destructive: oklch(30.6% 0.132 29);
+  --destructive-fg: oklch(98% 0 0);
+
+  --border: oklch(25% 0.03 240);
+  --input: oklch(25% 0.03 240);
+  --ring: oklch(55% 0.22 260 / 0.5);
+
+  /* Charts - Vibrant Dark */
+  --chart-1: oklch(60% 0.18 260);
+  /* Blue */
+  --chart-2: oklch(65% 0.20 150);
+  /* Green */
+  --chart-3: oklch(70% 0.18 30);
+  /* Orange */
+  --chart-4: oklch(65% 0.18 290);
+  /* Purple */
+  --chart-5: oklch(70% 0.15 80);
+  /* Yellow */
+}
+
+/* 
+  2. Map Tailwind Tokens to the CSS Variables 
+*/
+@theme {
+  --font-family-sans: var(--font-family-sans);
+
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-fg);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-fg);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-fg);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-fg);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-fg);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border, currentColor);
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

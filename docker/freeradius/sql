@@ -1,0 +1,35 @@
+sql {
+    dialect = "mysql"
+    driver = "rlm_sql_mysql"
+
+    server = "__DB_HOST__"
+    port = __DB_PORT__
+    login = "__DB_USERNAME__"
+    password = "__DB_PASSWORD__"
+    radius_db = "__DB_DATABASE__"
+
+    acct_table1 = "radacct"
+    acct_table2 = "radacct"
+    postauth_table = "radpostauth"
+    authcheck_table = "radcheck"
+    groupcheck_table = "radgroupcheck"
+    authreply_table = "radreply"
+    groupreply_table = "radgroupreply"
+    usergroup_table = "radusergroup"
+    group_attribute = "SQL-Group"
+
+    read_clients = yes
+    client_table = "nas"
+
+    pool {
+        start = 5
+        min = 3
+        max = 32
+        spare = 10
+        uses = 0
+        lifetime = 0
+        idle_timeout = 60
+    }
+
+    $INCLUDE ${modconfdir}/${.:name}/main/${dialect}/queries.conf
+}

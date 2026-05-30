@@ -1,0 +1,48 @@
+# Nixpacks Configuration for Skynet E-Billing
+# Based on successful setup from skynet-customer-health
+
+[phases.setup]
+aptPkgs = [
+    "nginx"
+]
+nixPkgs = [
+    "php84",
+    "php84Packages.composer",
+    "php84Extensions.pdo_mysql",
+    "php84Extensions.bcmath",
+    "php84Extensions.sockets",
+    "php84Extensions.xml",
+    "php84Extensions.mbstring",
+    "php84Extensions.ctype",
+    "php84Extensions.curl",
+    "php84Extensions.dom",
+    "php84Extensions.fileinfo",
+    "php84Extensions.filter",
+    "php84Extensions.tokenizer",
+    "php84Extensions.pcntl",
+    "php84Extensions.posix",
+    "php84Extensions.zip",
+    "php84Extensions.gd",
+    "php84Extensions.intl",
+    "php84Extensions.redis",
+    "nodejs_22",
+    "npm-9_x",
+    "python311Packages.supervisor",
+    "iputils"
+]
+
+[phases.install]
+cmds = [
+    "composer install --no-dev --optimize-autoloader --no-interaction",
+    "npm ci"
+]
+
+[phases.build]
+cmds = [
+    "npm run build",
+    "mkdir -p /var/log/nginx /var/lib/nginx /tmp/nginx",
+    "cp docker/nginx.conf /etc/nginx/nginx.conf || cp docker/nginx.conf /etc/nginx/sites-available/default"
+]
+
+[start]
+cmd = "sh deploy.sh && supervisord -c supervisord.conf"

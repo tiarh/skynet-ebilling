@@ -1,0 +1,113 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: skynet-ebilling-app:latest
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    env_file:
+      - .env
+    environment:
+      RUN_MIGRATIONS: "true"
+      RUN_SEEDERS: "${RUN_SEEDERS:-true}"
+    volumes:
+      - app-storage:/var/www/html/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: skynet-ebilling-app:latest
+    restart: unless-stopped
+    command: php artisan queue:work redis --queue=default,network-enforcement,router-sync --sleep=1 --tries=3 --timeout=300
+    env_file:
+      - .env
+    environment:
+      RUN_MIGRATIONS: "false"
+      RUN_SEEDERS: "false"
+    volumes:
+      - app-storage:/var/www/html/storage
+    depends_on:
+      app:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: skynet-ebilling-app:latest
+    restart: unless-stopped
+    command: php artisan schedule:work
+    env_file:
+      - .env
+    environment:
+      RUN_MIGRATIONS: "false"
+      RUN_SEEDERS: "false"
+    volumes:
+      - app-storage:/var/www/html/storage
+    depends_on:
+      app:
+        condition: service_started
+
+  freeradius:
+    build:
+      context: .
+      dockerfile: docker/freeradius/Dockerfile
+    image: skynet-ebilling-freeradius:latest
+    restart: unless-stopped
+    ports:
+      - "${RADIUS_AUTH_PORT:-1812}:1812/udp"
+      - "${RADIUS_ACCT_PORT:-1813}:1813/udp"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: "${DB_DATABASE:-skynet_ebilling}"
+      DB_USERNAME: "${DB_USERNAME:-skynet}"
+      DB_PASSWORD: "${DB_PASSWORD:-skynet_secret}"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "${DB_DATABASE:-skynet_ebilling}"
+      MYSQL_USER: "${DB_USERNAME:-skynet}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-skynet_secret}"
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-root_secret}"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${DB_ROOT_PASSWORD:-root_secret}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  app-storage:
+  mysql-data:
+  redis-data:
