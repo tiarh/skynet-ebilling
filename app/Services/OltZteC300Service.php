@@ -187,7 +187,31 @@ class OltZteC300Service
             $baseInfoOutputs = ['all' => $discoveryOutput];
             $powerOutputs = [];
             $distanceOutputs = [];
-            $runningConfigOutput = '';
+
+            // Collect per-port optical power and baseinfo (same as pexpect path)
+            foreach ($ports as $portRef) {
+                $oltRef = $this->toGponOltRef($portRef);
+
+                $powerOutput = $this->execFirstSuccessful($ssh, [
+                    "show pon power onu-rx {$oltRef}",
+                    "show pon power onu-rx {$portRef}",
+                ], $executedCommands);
+                if ($powerOutput !== '') {
+                    $powerOutputs[$portRef] = $powerOutput;
+                }
+
+                $portBaseInfo = $this->execFirstSuccessful($ssh, [
+                    "show gpon onu baseinfo {$oltRef}",
+                    "show gpon onu baseinfo {$portRef}",
+                ], $executedCommands);
+                if ($portBaseInfo !== '') {
+                    $baseInfoOutputs[$portRef] = $portBaseInfo;
+                }
+            }
+
+            $runningConfigOutput = $this->execFirstSuccessful($ssh, [
+                'show running-config',
+            ], $executedCommands);
 
             $distances = $this->parseDistances($distanceOutputs);
             $rxPowers = $this->parseRxPowers($powerOutputs);
